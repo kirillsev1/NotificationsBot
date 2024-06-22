@@ -35,7 +35,10 @@ async def update_send_required(
     item_id = callback_data.note_id
     await do_request(
         f'{settings.BACKEND_HOST}/api/v1/note/send_required/{item_id}',
-        {'send_required': str(not callback_data.send_required)},
+        {
+            'send_required': str(not callback_data.send_required),
+            'page': callback_data.page,
+        },
         headers={'access-token': access_token},
         method='PATCH',
     )

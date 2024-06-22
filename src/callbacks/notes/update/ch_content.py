@@ -11,10 +11,11 @@ from src.state.main import MainState
 
 @notes_callback_router.callback_query(NoteContentCallbackData.filter())
 async def get_content(callback_query: CallbackQuery, callback_data: NoteContentCallbackData, state: FSMContext):
-    access_token = (await state.get_data()).get('access_token')
     note = await do_request(
         f'{settings.BACKEND_HOST}/api/v1/note/{callback_data.note_id}',
-        headers={'access-token': access_token},
+        headers={
+            'access-token': (await state.get_data()).get('access_token')
+        },
         method='GET',
     )
     await callback_query.message.answer(
@@ -26,7 +27,9 @@ async def get_content(callback_query: CallbackQuery, callback_data: NoteContentC
                     InlineKeyboardButton(
                         text='update',
                         callback_data=UpdateNoteContentCallbackData(
-                            note_id=callback_data.note_id, content=note['content'][:20]
+                            note_id=callback_data.note_id,
+                            content=note['content'][:20],
+                            page=callback_data.page
                         ).pack(),
                     ),
                 ]
@@ -42,11 +45,17 @@ async def hide_content(callback_query: CallbackQuery):
 
 @notes_callback_router.callback_query(UpdateNoteContentCallbackData.filter())
 async def handel_content_update(
-    callback_query: CallbackQuery, callback_data: UpdateNoteContentCallbackData, state: FSMContext
+        callback_query: CallbackQuery,
+        callback_data: UpdateNoteContentCallbackData,
+        state: FSMContext
 ):
     await state.set_state(MainState.update_content)
     await state.update_data(
-        {'update_note_id': callback_data.note_id, 'update_msg_id': callback_query.message.message_id}
+        {
+            'update_note_id': callback_data.note_id,
+            'update_msg_id': callback_query.message.message_id,
+            'page': callback_data.page,
+        }
     )
     await callback_query.message.edit_text(f'enter new text to replace:\n{callback_data.content}...')
     await callback_query.message.edit_reply_markup(
@@ -61,9 +70,13 @@ async def update_content(message: Message, state: FSMContext):
     state_data = await state.get_data()
     access_token = state_data.get('access_token')
     note_id = state_data.get('update_note_id')
+    page = state_data.get('page')
     await do_request(
         f'{settings.BACKEND_HOST}/api/v1/note/content/{note_id}',
-        {'content': message.text},
+        {
+            'content': message.text,
+            'page': page,
+        },
         headers={'access-token': access_token},
         method='PATCH',
     )

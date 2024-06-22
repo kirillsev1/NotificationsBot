@@ -29,7 +29,7 @@ async def update_create_calendar(callback_query: CallbackQuery, callback_data: C
         access_token = (await state.get_data()).get('access_token')
         date_str = date.strftime('%Y-%m-%d')
         utc = await do_request(
-            f'{settings.BACKEND_HOST}/api/v1/note/utc',
+            f'{settings.BACKEND_HOST}/api/v1/user/utc',
             headers={
                 'access-token': access_token
             },

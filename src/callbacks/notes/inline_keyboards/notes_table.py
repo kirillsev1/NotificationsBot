@@ -1,3 +1,4 @@
+import datetime
 from math import floor
 
 import aiohttp
@@ -19,21 +20,29 @@ VIEW_FIELDS = ['id', 'content', 'time', 'send_required']
 
 
 async def create_notes_table(
-        notes: list[dict[str, any]], page: int, date: str, total_rows: int
+        notes: list[dict[str, any]], page: int, date: str, total_rows: int, state: FSMContext
 ) -> InlineKeyboardMarkup:
     notes_table = [[InlineKeyboardButton(text=field, callback_data=field) for field in VIEW_FIELDS]]
     total_pages = floor(total_rows / 10)
-
+    utc = await do_request(
+        f'{settings.BACKEND_HOST}/api/v1/user/utc',
+        headers={
+            'access-token': (await state.get_data()).get('access_token')
+        },
+        method='GET'
+    )
     for item in notes:
+        test = (datetime.datetime.fromisoformat(item.get('perform')) + datetime.timedelta(hours=utc['utc'])).isoformat()
         note = [
             InlineKeyboardButton(
                 text=str(item.get('id')), callback_data=NoteIdCallbackData(note_id=item.get('id')).pack()
             ),
             InlineKeyboardButton(
-                text=item.get('content')[:10], callback_data=NoteContentCallbackData(note_id=item.get('id')).pack()
+                text=item.get('content')[:10],
+                callback_data=NoteContentCallbackData(note_id=item.get('id'), page=page).pack()
             ),
             InlineKeyboardButton(
-                text=str(item.get('perform').split('T')[1])[:-4],
+                text=str(test.split('T')[1])[:-4][:-2],
                 callback_data=NotePerformCallbackData(note_id=item.get('id')).pack(),
             ),
             InlineKeyboardButton(
@@ -42,6 +51,7 @@ async def create_notes_table(
                     note_id=item.get('id'),
                     send_required=item.get('send_required'),
                     datetime=item.get('perform').replace(':', '|'),
+                    page=page
                 ).pack(),
             ),
         ]
@@ -69,5 +79,5 @@ async def get_notes_table(callback_query: CallbackQuery, page: int, date: str, s
         )
     else:
         await callback_query.message.edit_text(text=f'Notes for {date.split("T")[0]}:')
-        table = await create_notes_table(notes['notes'], page, date, notes['total_rows'])
+        table = await create_notes_table(notes['notes'], page, date, notes['total_rows'], state)
         await callback_query.message.edit_reply_markup(reply_markup=table)

@@ -11,6 +11,5 @@ async def get_time(callback_query: CallbackQuery, callback_data: TimePickerCallb
     minutes = callback_data.minutes
     date_str = callback_data.date
     utc = callback_data.utc
-    print(hours, minutes, date_str, utc)
     kb = time_picker_keyboard(hours=hours, minutes=minutes, date_str=date_str, utc=utc)
     await callback_query.message.edit_reply_markup(reply_markup=kb)

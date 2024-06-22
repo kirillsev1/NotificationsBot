@@ -8,7 +8,7 @@ async def get_pagination(page, total_pages, date):
         InlineKeyboardButton(text=str(page), callback_data=PaginationCallback(page=page, date=date).pack()),
     ]
 
-    if total_pages == 0:
+    if total_pages <= 1:
         pagination_buttons.insert(
             0,
             InlineKeyboardButton(text=' ', callback_data=PaginationCallback(page=page, date=date).pack()),

@@ -42,7 +42,7 @@ async def add_perform(callback_query: CallbackQuery, callback_data: DateTimeSele
     )
 
     await do_request(
-        f'{settings.BACKEND_HOST}/api/v1/note/utc',
+        f'{settings.BACKEND_HOST}/api/v1/user/utc',
         params={
             'utc': callback_data.utc
         },
@@ -52,4 +52,4 @@ async def add_perform(callback_query: CallbackQuery, callback_data: DateTimeSele
         method='PATCH'
     )
     await state.set_state(MainState.add_content)
-    await callback_query.message.edit_text('enter content')
+    await callback_query.message.answer('enter content')
