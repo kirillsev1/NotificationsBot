@@ -25,7 +25,9 @@ def time_picker_keyboard(hours, minutes, date_str, utc=0):
                 create_button('/\\', hours, (minutes + 1) % 60, date_str, utc),
                 InlineKeyboardButton(
                     text='/\\',
-                    callback_data=TimePickerCallback(hours=hours + 1, minutes=minutes, date=date_str, utc=utc + 1).pack(),
+                    callback_data=TimePickerCallback(
+                        hours=hours + 1, minutes=minutes, date=date_str, utc=utc + 1
+                    ).pack(),
                 ),
             ],
             [
@@ -38,7 +40,9 @@ def time_picker_keyboard(hours, minutes, date_str, utc=0):
                 create_button('\\/', hours, (minutes - 1) % 60, date_str, utc),
                 InlineKeyboardButton(
                     text='\\/',
-                    callback_data=TimePickerCallback(hours=hours - 1, minutes=minutes, date=date_str, utc=utc - 1).pack(),
+                    callback_data=TimePickerCallback(
+                        hours=hours - 1, minutes=minutes, date=date_str, utc=utc - 1
+                    ).pack(),
                 ),
             ],
             [

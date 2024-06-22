@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.tg.router import tg_router
-from src.integrations.tg_bot import bot, get_tg_bot
+from src.integrations.tg_bot import bot
 from src.middlewares.logger import LogServerMiddleware
 from src.on_startup.logger import setup_logger
 from src.on_startup.webhook import setup_webhook

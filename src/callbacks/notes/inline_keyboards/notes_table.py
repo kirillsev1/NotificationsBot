@@ -5,6 +5,7 @@ import aiohttp
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
 
+from conf.config import settings
 from src.callbacks.notes.data.note import (
     NoteContentCallbackData,
     NoteIdCallbackData,
@@ -13,23 +14,20 @@ from src.callbacks.notes.data.note import (
 )
 from src.callbacks.notes.header import get_header
 from src.callbacks.notes.inline_keyboards.pagination import get_pagination
-from conf.config import settings
 from src.utils.request import do_request
 
 VIEW_FIELDS = ['id', 'content', 'time', 'send_required']
 
 
 async def create_notes_table(
-        notes: list[dict[str, any]], page: int, date: str, total_rows: int, state: FSMContext
+    notes: list[dict[str, any]], page: int, date: str, total_rows: int, state: FSMContext
 ) -> InlineKeyboardMarkup:
     notes_table = [[InlineKeyboardButton(text=field, callback_data=field) for field in VIEW_FIELDS]]
     total_pages = floor(total_rows / 10)
     utc = await do_request(
         f'{settings.BACKEND_HOST}/api/v1/user/utc',
-        headers={
-            'access-token': (await state.get_data()).get('access_token')
-        },
-        method='GET'
+        headers={'access-token': (await state.get_data()).get('access_token')},
+        method='GET',
     )
     for item in notes:
         test = (datetime.datetime.fromisoformat(item.get('perform')) + datetime.timedelta(hours=utc['utc'])).isoformat()
@@ -39,7 +37,7 @@ async def create_notes_table(
             ),
             InlineKeyboardButton(
                 text=item.get('content')[:10],
-                callback_data=NoteContentCallbackData(note_id=item.get('id'), page=page).pack()
+                callback_data=NoteContentCallbackData(note_id=item.get('id'), page=page).pack(),
             ),
             InlineKeyboardButton(
                 text=str(test.split('T')[1])[:-4][:-2],
@@ -51,7 +49,7 @@ async def create_notes_table(
                     note_id=item.get('id'),
                     send_required=item.get('send_required'),
                     datetime=item.get('perform').replace(':', '|'),
-                    page=page
+                    page=page,
                 ).pack(),
             ),
         ]
@@ -67,8 +65,12 @@ async def get_notes_table(callback_query: CallbackQuery, page: int, date: str, s
 
     try:
         notes = await do_request(
-            f'{settings.BACKEND_HOST}/api/v1/note/page/{page}',
-            params={'notes_date': date},
+            f'{settings.BACKEND_HOST}/api/v1/note',
+            params={
+                'notes_date': date,
+                'limit': 10,
+                'offset': page * 10
+            },
             headers={'access-token': access_token},
             method='GET',
         )

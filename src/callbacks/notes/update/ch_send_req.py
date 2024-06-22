@@ -2,16 +2,15 @@ from datetime import datetime
 
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup
-from pytz import utc
 
+from conf.config import settings
 from src.callbacks.notes.inline_keyboards.notes_table import NoteSendCallbackData
 from src.callbacks.notes.router import notes_callback_router
-from conf.config import settings
 from src.utils.request import do_request
 
 
 def update_button_text(
-    table: InlineKeyboardMarkup, new_button: InlineKeyboardButton, callback_data: str
+        table: InlineKeyboardMarkup, new_button: InlineKeyboardButton, callback_data: str
 ) -> InlineKeyboardMarkup:
     for row in table.inline_keyboard:
         for button_index, button in enumerate(row):

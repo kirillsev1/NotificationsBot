@@ -3,11 +3,11 @@ import datetime
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message
 
+from conf.config import settings
 from src.callbacks.notes.data.pagination import PaginationCallback
 from src.callbacks.notes.router import notes_callback_router
-from conf.config import settings
-from src.utils.request import do_request
 from src.state.main import MainState
+from src.utils.request import do_request
 
 
 @notes_callback_router.message(MainState.add_content)

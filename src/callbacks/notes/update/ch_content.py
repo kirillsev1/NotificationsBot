@@ -2,20 +2,18 @@ from aiogram import Bot
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
 
+from conf.config import settings
 from src.callbacks.notes.data.note import NoteContentCallbackData, UpdateNoteContentCallbackData
 from src.callbacks.notes.router import notes_callback_router
-from conf.config import settings
-from src.utils.request import do_request
 from src.state.main import MainState
+from src.utils.request import do_request
 
 
 @notes_callback_router.callback_query(NoteContentCallbackData.filter())
 async def get_content(callback_query: CallbackQuery, callback_data: NoteContentCallbackData, state: FSMContext):
     note = await do_request(
         f'{settings.BACKEND_HOST}/api/v1/note/{callback_data.note_id}',
-        headers={
-            'access-token': (await state.get_data()).get('access_token')
-        },
+        headers={'access-token': (await state.get_data()).get('access_token')},
         method='GET',
     )
     await callback_query.message.answer(
@@ -27,9 +25,7 @@ async def get_content(callback_query: CallbackQuery, callback_data: NoteContentC
                     InlineKeyboardButton(
                         text='update',
                         callback_data=UpdateNoteContentCallbackData(
-                            note_id=callback_data.note_id,
-                            content=note['content'][:20],
-                            page=callback_data.page
+                            note_id=callback_data.note_id, content=note['content'][:20], page=callback_data.page
                         ).pack(),
                     ),
                 ]
@@ -45,9 +41,7 @@ async def hide_content(callback_query: CallbackQuery):
 
 @notes_callback_router.callback_query(UpdateNoteContentCallbackData.filter())
 async def handel_content_update(
-        callback_query: CallbackQuery,
-        callback_data: UpdateNoteContentCallbackData,
-        state: FSMContext
+    callback_query: CallbackQuery, callback_data: UpdateNoteContentCallbackData, state: FSMContext
 ):
     await state.set_state(MainState.update_content)
     await state.update_data(
@@ -75,7 +69,7 @@ async def update_content(message: Message, state: FSMContext):
         f'{settings.BACKEND_HOST}/api/v1/note/content/{note_id}',
         {
             'content': message.text,
-            'page': page,
+            'offset': page * 10,
         },
         headers={'access-token': access_token},
         method='PATCH',

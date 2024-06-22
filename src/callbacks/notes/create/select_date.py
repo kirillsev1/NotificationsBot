@@ -19,17 +19,13 @@ async def handle_calendar(callback_query: CallbackQuery, callback_data: CreateNo
         access_token = (await state.get_data()).get('access_token')
         date_str = date.strftime('%Y-%m-%d')
         utc = await do_request(
-            f'{settings.BACKEND_HOST}/api/v1/user/utc',
-            headers={
-                'access-token': access_token
-            },
-            method='GET'
+            f'{settings.BACKEND_HOST}/api/v1/user/utc', headers={'access-token': access_token}, method='GET'
         )
         now = datetime.datetime.now()
         kb = time_picker_keyboard(
             hours=(now + datetime.timedelta(hours=utc['utc'])).hour,
             minutes=(now + datetime.timedelta(minutes=1)).minute,
-            date_str=date_str
+            date_str=date_str,
         )
         await callback_query.message.edit_text('Please select a time')
         await callback_query.message.edit_reply_markup(reply_markup=kb)

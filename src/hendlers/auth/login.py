@@ -6,8 +6,8 @@ from aiohttp import ClientResponseError
 
 from conf.config import settings
 from src.hendlers.auth.router import auth_router
-from src.utils.request import do_request
 from src.state.main import MainState
+from src.utils.request import do_request
 
 kb = [
     [

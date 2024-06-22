@@ -32,13 +32,13 @@ class CreateNoteCalendar(SimpleCalendar):
             return month_str
 
         def highlight_weekday():
-            if now_month == month and now_year == year and now_weekday == weekday:
-                return highlight(weekday)
-            return weekday
+            if now_month == month and now_year == year and now_weekday == _weekday:
+                return highlight(_weekday)
+            return _weekday
 
         def format_day_string():
             date_to_check = datetime(year, month, day)
-            if self.min_date and date_to_check < self.min_date:
+            if self.min_date and date_to_check < self.min_date:  # noqa
                 return superscript(str(day))
             elif self.max_date and date_to_check > self.max_date:
                 return superscript(str(day))
@@ -52,9 +52,7 @@ class CreateNoteCalendar(SimpleCalendar):
 
         # building a calendar keyboard
         kb = []
-        # today = datetime.now().date()
 
-        # inline_kb = InlineKeyboardMarkup(row_width=7)
         # First row - Year
         years_row = []
         if date(year, month, 1) < today.date() or (month < today.month and year >= today.year):
@@ -108,7 +106,7 @@ class CreateNoteCalendar(SimpleCalendar):
 
         # Week Days
         week_days_labels_row = []
-        for weekday in self._labels.days_of_week:
+        for _weekday in self._labels.days_of_week:
             week_days_labels_row.append(
                 InlineKeyboardButton(text=highlight_weekday(), callback_data=self.ignore_callback)
             )
@@ -137,23 +135,20 @@ class CreateNoteCalendar(SimpleCalendar):
                 kb.append(days_row)
 
         # nav today & cancel button
-        cancel_row = []
-        cancel_row.append(
+        cancel_row = [
             InlineKeyboardButton(
                 text=self._labels.cancel_caption,
                 callback_data=CreateNoteCalendarCallback(
                     act=SimpleCalAct.cancel, year=year, month=month, day=day
                 ).pack(),
-            )
-        )
-        cancel_row.append(InlineKeyboardButton(text=' ', callback_data=self.ignore_callback))
-        cancel_row.append(
+            ),
+            InlineKeyboardButton(text=' ', callback_data=self.ignore_callback),
             InlineKeyboardButton(
                 text=self._labels.today_caption,
                 callback_data=CreateNoteCalendarCallback(
                     act=SimpleCalAct.today, year=year, month=month, day=day
                 ).pack(),
-            )
-        )
+            ),
+        ]
         kb.append(cancel_row)
         return InlineKeyboardMarkup(row_width=7, inline_keyboard=kb)

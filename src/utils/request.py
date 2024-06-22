@@ -21,11 +21,11 @@ class ClientSessionWithCorrId(aiohttp.ClientSession):
 
 
 async def do_request(
-    url: str,
-    params: Optional[Dict[str, Any]] = None,
-    body: Optional[Dict[str, Any]] = None,
-    headers: Optional[Dict[str, Any]] = None,
-    method: str = 'POST',
+        url: str,
+        params: Optional[Dict[str, Any]] = None,
+        body: Optional[Dict[str, Any]] = None,
+        headers: Optional[Dict[str, Any]] = None,
+        method: str = 'POST',
 ) -> Any:
     try:
         headers_ = {'Authorization': f'Bearer {access_token_cxt.get()}'}
