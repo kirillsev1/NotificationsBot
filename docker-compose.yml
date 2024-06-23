@@ -1,6 +1,18 @@
 version: '3.9'
 
 services:
+  nginx:
+    build:
+      dockerfile: docker/nginx/Dockerfile
+      context: .
+    ports:
+      - "82:80"
+#      - "443:443"
+    depends_on:
+      - bot
+    networks:
+      - fast_calendar
+
   bot:
     container_name: bot
     build:
